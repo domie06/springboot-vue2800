@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.CheciDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.checi_name as checiName
+        ,a.checi_types as checiTypes
+        ,a.checi_photo as checiPhoto
+        ,a.checi_fuzeren as checiFuzeren
+        ,a.checi_address as checiAddress
+        ,a.checi_kucun_number as checiKucunNumber
+        ,a.checi_new_money as checiNewMoney
+        ,a.checi_time as checiTime
+        ,a.checi_content as checiContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.CheciView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM checi  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.checiName != '' and params.checiName != null and params.checiName != 'null' ">
+                and a.checi_name like CONCAT('%',#{params.checiName},'%')
+            </if>
+            <if test="params.checiTypes != null and params.checiTypes != ''">
+                and a.checi_types = #{params.checiTypes}
+            </if>
+            <if test=" params.checiFuzeren != '' and params.checiFuzeren != null and params.checiFuzeren != 'null' ">
+                and a.checi_fuzeren like CONCAT('%',#{params.checiFuzeren},'%')
+            </if>
+            <if test=" params.checiAddress != '' and params.checiAddress != null and params.checiAddress != 'null' ">
+                and a.checi_address like CONCAT('%',#{params.checiAddress},'%')
+            </if>
+            <if test="params.checiKucunNumberStart != null and params.checiKucunNumberStart != ''">
+                <![CDATA[  and a.checi_kucun_number >= #{params.checiKucunNumberStart}   ]]>
+            </if>
+            <if test="params.checiKucunNumberEnd != null and params.checiKucunNumberEnd != ''">
+                <![CDATA[  and a.checi_kucun_number <= #{params.checiKucunNumberEnd}   ]]>
+            </if>
+             <if test="params.checiKucunNumber != null and params.checiKucunNumber != ''">
+                and a.checi_kucun_number = #{params.checiKucunNumber}
+             </if>
+            <if test="params.checiNewMoneyStart != null ">
+                <![CDATA[  and a.checi_new_money >= #{params.checiNewMoneyStart}   ]]>
+            </if>
+            <if test="params.checiNewMoneyEnd != null ">
+                <![CDATA[  and a.checi_new_money <= #{params.checiNewMoneyEnd}   ]]>
+            </if>
+            <if test=" params.checiTimeStart != '' and params.checiTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.checi_time) >= UNIX_TIMESTAMP(#{params.checiTimeStart}) ]]>
+            </if>
+            <if test=" params.checiTimeEnd != '' and params.checiTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.checi_time) <= UNIX_TIMESTAMP(#{params.checiTimeEnd}) ]]>
+            </if>
+            <if test=" params.checiContent != '' and params.checiContent != null and params.checiContent != 'null' ">
+                and a.checi_content like CONCAT('%',#{params.checiContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>

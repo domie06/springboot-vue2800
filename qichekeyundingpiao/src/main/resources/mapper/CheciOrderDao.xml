@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.CheciOrderDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.checi_order_uuid_number as checiOrderUuidNumber
+        ,a.checi_id as checiId
+        ,a.yonghu_id as yonghuId
+        ,a.buy_number as buyNumber
+        ,a.checi_order_true_price as checiOrderTruePrice
+        ,a.checi_order_types as checiOrderTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.CheciOrderView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,checi.checi_name as checiName
+        ,checi.checi_types as checiTypes
+        ,checi.checi_photo as checiPhoto
+        ,checi.checi_fuzeren as checiFuzeren
+        ,checi.checi_address as checiAddress
+        ,checi.checi_kucun_number as checiKucunNumber
+        ,checi.checi_new_money as checiNewMoney
+        ,checi.checi_time as checiTime
+        ,checi.checi_content as checiContent
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.new_money as newMoney
+        ,yonghu.yonghu_delete as yonghuDelete
+
+        FROM checi_order  a
+        left JOIN checi checi ON a.checi_id = checi.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.checiOrderUuidNumber != '' and params.checiOrderUuidNumber != null and params.checiOrderUuidNumber != 'null' ">
+                and a.checi_order_uuid_number like CONCAT('%',#{params.checiOrderUuidNumber},'%')
+            </if>
+            <if test="params.checiId != null and params.checiId != ''">
+                and (
+                    a.checi_id = #{params.checiId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.buyNumberStart != null and params.buyNumberStart != ''">
+                <![CDATA[  and a.buy_number >= #{params.buyNumberStart}   ]]>
+            </if>
+            <if test="params.buyNumberEnd != null and params.buyNumberEnd != ''">
+                <![CDATA[  and a.buy_number <= #{params.buyNumberEnd}   ]]>
+            </if>
+             <if test="params.buyNumber != null and params.buyNumber != ''">
+                and a.buy_number = #{params.buyNumber}
+             </if>
+            <if test="params.checiOrderTruePriceStart != null ">
+                <![CDATA[  and a.checi_order_true_price >= #{params.checiOrderTruePriceStart}   ]]>
+            </if>
+            <if test="params.checiOrderTruePriceEnd != null ">
+                <![CDATA[  and a.checi_order_true_price <= #{params.checiOrderTruePriceEnd}   ]]>
+            </if>
+            <if test="params.checiOrderTypes != null and params.checiOrderTypes != ''">
+                and a.checi_order_types = #{params.checiOrderTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断车票信息的id不为空 -->
+            <if test=" params.checiIdNotNull != '' and params.checiIdNotNull != null and params.checiIdNotNull != 'null' ">
+                and a.checi_id IS NOT NULL
+            </if>
+            <if test=" params.checiName != '' and params.checiName != null and params.checiName != 'null' ">
+                and checi.checi_name like CONCAT('%',#{params.checiName},'%')
+            </if>
+            <if test="params.checiTypes != null  and params.checiTypes != ''">
+                and checi.checi_types = #{params.checiTypes}
+            </if>
+
+            <if test=" params.checiFuzeren != '' and params.checiFuzeren != null and params.checiFuzeren != 'null' ">
+                and checi.checi_fuzeren like CONCAT('%',#{params.checiFuzeren},'%')
+            </if>
+            <if test=" params.checiAddress != '' and params.checiAddress != null and params.checiAddress != 'null' ">
+                and checi.checi_address like CONCAT('%',#{params.checiAddress},'%')
+            </if>
+            <if test="params.checiKucunNumberStart != null  and params.checiKucunNumberStart != '' ">
+                <![CDATA[  and checi.checi_kucun_number >= #{params.checiKucunNumberStart}   ]]>
+            </if>
+            <if test="params.checiKucunNumberEnd != null  and params.checiKucunNumberEnd != '' ">
+                <![CDATA[  and checi.checi_kucun_number <= #{params.checiKucunNumberEnd}   ]]>
+            </if>
+            <if test="params.checiKucunNumber != null  and params.checiKucunNumber != '' ">
+                and checi.checi_kucun_number = #{params.checiKucunNumber}
+            </if>
+            <if test="params.checiNewMoneyStart != null ">
+                <![CDATA[  and checi.checi_new_money >= #{params.checiNewMoneyStart}   ]]>
+            </if>
+            <if test="params.checiNewMoneyEnd != null ">
+                <![CDATA[  and checi.checi_new_money <= #{params.checiNewMoneyEnd}   ]]>
+            </if>
+            <if test=" params.checiTimeStart != '' and params.checiTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(checi.checi_time) >= UNIX_TIMESTAMP(#{params.checiTimeStart}) ]]>
+            </if>
+            <if test=" params.checiTimeEnd != '' and params.checiTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(checi.checi_time) <= UNIX_TIMESTAMP(#{params.checiTimeEnd}) ]]>
+            </if>
+            <if test=" params.checiContent != '' and params.checiContent != null and params.checiContent != 'null' ">
+                and checi.checi_content like CONCAT('%',#{params.checiContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(checi.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(checi.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and yonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and yonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+            <if test="params.yonghuDeleteStart != null  and params.yonghuDeleteStart != '' ">
+                <![CDATA[  and yonghu.yonghu_delete >= #{params.yonghuDeleteStart}   ]]>
+            </if>
+            <if test="params.yonghuDeleteEnd != null  and params.yonghuDeleteEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_delete <= #{params.yonghuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yonghuDelete != null  and params.yonghuDelete != '' ">
+                and yonghu.yonghu_delete = #{params.yonghuDelete}
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
